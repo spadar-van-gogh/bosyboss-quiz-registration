@@ -118,3 +118,9 @@ docker-compose.override.yml
 
 # Prisma
 prisma/migrations/
+
+# SQLITE
+*.db
+*.sqlite
+*.sqlite3
+migration_lock.toml
