@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -11,47 +8,42 @@ datasource db {
 }
 
 model Quiz {
-  id              String   @id @default(cuid())
-  title           String
-  description     String?
-  date            DateTime
-  startTime       String   // "19:00"
-  duration        Int      // minutes
-  maxTeams        Int      @default(20) // максимум команд вместо участников
-  minTeamSize     Int      @default(3)  // минимум человек в команде
-  maxTeamSize     Int      @default(6)  // максимум человек в команде
-  location        String?
-  price           Float    @default(0) // 0 = free
-  status          String   @default("ACTIVE") // ACTIVE, FULL, CANCELLED, COMPLETED
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-  
-  // Relations
+  id                String             @id @default(cuid())
+  title             String
+  description       String?
+  date              DateTime
+  startTime         String
+  duration          Int
+  maxTeams          Int                @default(20)
+  minTeamSize       Int                @default(3)
+  maxTeamSize       Int                @default(6)
+  location          String?
+  price             Float              @default(0)
+  status            String             @default("ACTIVE")
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
   teamRegistrations TeamRegistration[]
-  
+
   @@map("quizzes")
 }
 
 model TeamRegistration {
-  id            String   @id @default(cuid())
-  teamName      String   // Название команды
-  teamSize      Int      // Количество участников в команде
-  captainFirstName String // Имя капитана
-  captainLastName  String // Фамилия капитана
-  captainEmail  String   // Email капитана
-  captainPhone  String   // Телефон капитана
-  experience    String   @default("BEGINNER") // BEGINNER, EXPERIENCED, PROFESSIONAL
-  howHeardAbout String?
-  notes         String?
-  status        String   @default("CONFIRMED") // CONFIRMED, CANCELLED, WAITLIST
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  
-  // Relations
-  quizId        String
-  quiz          Quiz     @relation(fields: [quizId], references: [id], onDelete: Cascade)
-  
-  // Unique constraint - одна команда не может зарегистрироваться на один квиз дважды
+  id               String   @id @default(cuid())
+  teamName         String
+  teamSize         Int
+  captainFirstName String
+  captainLastName  String
+  captainEmail     String
+  captainPhone     String
+  experience       String   @default("BEGINNER")
+  howHeardAbout    String?
+  notes            String?
+  status           String   @default("CONFIRMED")
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  quizId           String
+  quiz             Quiz     @relation(fields: [quizId], references: [id], onDelete: Cascade)
+
   @@unique([teamName, quizId])
   @@map("team_registrations")
 }
@@ -59,15 +51,12 @@ model TeamRegistration {
 model Admin {
   id        String   @id @default(cuid())
   email     String   @unique
-  password  String   // hashed
+  password  String
   name      String
-  role      String   @default("MODERATOR") // SUPER_ADMIN, ADMIN, MODERATOR
+  role      String   @default("MODERATOR")
   isActive  Boolean  @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  
+
   @@map("admins")
 }
-
-// SQLite doesn't support enums, so we use string fields with comments for valid values
-// Valid values are enforced in the application code

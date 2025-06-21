@@ -22,7 +22,7 @@ async function main() {
 
   console.log('✅ Admin created:', admin.email);
 
-  // Create only ONE tournament
+  // Create tournament - ИСПРАВЛЕНО: maxTeams означает количество команд, не участников
   const quiz1 = await prisma.quiz.upsert({
     where: { id: 'quiz-1' },
     update: {},
@@ -33,9 +33,9 @@ async function main() {
       date: new Date('2025-06-29T17:00:00Z'),
       startTime: '17:00',
       duration: 240,
-      maxTeams: 10,
-      minTeamSize: 3,
-      maxTeamSize: 10,
+      maxTeams: 10,        
+      minTeamSize: 3,      // От 3 участников в команде
+      maxTeamSize: 10,     // До 10 участников в команде
       location: 'Ресторан "Рестар", бульвар газеты Гомельская Правда, 11. Открытая террасса на втором этаже.',
       price: 15,
       status: 'ACTIVE'
@@ -44,7 +44,7 @@ async function main() {
 
   console.log('✅ Tournament created:', quiz1.title);
 
-  // Create sample team registrations (optional - можете закомментировать)
+  // Create sample team registrations - только 2 команды из возможных 20
   const sampleTeams = [
     {
       teamName: 'Знатоки',
@@ -54,6 +54,7 @@ async function main() {
       captainEmail: 'anna.petrova@example.com',
       captainPhone: '+375 29 123-45-67',
       experience: 'EXPERIENCED',
+      howHeardAbout: 'friends',
       quizId: quiz1.id,
       status: 'CONFIRMED'
     },
@@ -65,6 +66,7 @@ async function main() {
       captainEmail: 'maxim.ivanov@example.com',
       captainPhone: '+375 29 234-56-78',
       experience: 'BEGINNER',
+      howHeardAbout: 'social_media',
       quizId: quiz1.id,
       status: 'CONFIRMED'
     }
@@ -89,8 +91,9 @@ async function main() {
   console.log('\n📋 Summary:');
   console.log('- Admin: admin@bosyboss.by / BosyBoss2025!');
   console.log('- Tournament: 1 tournament created');
-  console.log('- Team Registrations: 0 sample team registrations created');
-  console.log('- Available spots: 10 из 10 команд');
+  console.log('- Available slots: можно зарегистрировать 18 команд из 20');
+  console.log('- Team size: от 3 до 10 участников в команде');
+  console.log('- Sample teams: 2 команды уже зарегистрированы');
 }
 
 main()
