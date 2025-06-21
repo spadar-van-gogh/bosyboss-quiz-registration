@@ -51,7 +51,7 @@ interface TeamRegistrationFormErrors {
 // Mock data for demonstration
 const mockQuizzes: Quiz[] = [
   {
-    id: '1',
+    id: 'quiz-1',
     title: 'Большой Интеллектуальный Турнир',
     description: 'Масштабное мероприятие с несколькими раундами: история, наука, поп-культура и логика',
     date: '2025-06-29T17:00:00Z',
@@ -60,8 +60,8 @@ const mockQuizzes: Quiz[] = [
     maxTeams: 10,
     minTeamSize: 3,
     maxTeamSize: 10,
-    location: 'Ресторан "Рестар", бульвар газеты Гомельская Правда, 11, открытая террасса на втором этаже',
-    price: 10,
+    location: 'Ресторан "Рестар", бульвар газеты Гомельская Правда, 11. Открытая террасса на втором этаже.',
+    price: 15,
     availableSpots: 10,
     isFull: false
   },

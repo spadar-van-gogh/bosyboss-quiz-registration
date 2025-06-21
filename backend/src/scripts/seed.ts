@@ -89,8 +89,8 @@ async function main() {
   console.log('\n📋 Summary:');
   console.log('- Admin: admin@bosyboss.by / BosyBoss2025!');
   console.log('- Tournament: 1 tournament created');
-  console.log('- Team Registrations: 2 sample team registrations created');
-  console.log('- Available spots: 18 из 20 команд');
+  console.log('- Team Registrations: 0 sample team registrations created');
+  console.log('- Available spots: 10 из 10 команд');
 }
 
 main()
