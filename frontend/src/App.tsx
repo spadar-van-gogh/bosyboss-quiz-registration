@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Calendar, Clock, Users, MapPin, Star, Mail, Phone, User, MessageSquare, Trophy } from 'lucide-react';
 
 // API Base URL из переменных окружения
-const API_BASE_URL = import.meta.env?.VITE_API_URL || 'http://localhost:3001';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://bosyboss-quiz-registration-production.up.railway.app';
 
 // Types
 interface Quiz {
