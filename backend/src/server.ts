@@ -21,15 +21,14 @@ app.use(helmet());
 app.use(cors({
   origin: [
     'http://localhost:3000', 
-    'http://127.0.0.1:3000', 
+    'http://127.0.0.1:3000',
     'https://bosyboss-quiz-registration.vercel.app',
-    'https://bosyboss-quiz-registration-git-main-spadar-van-goghs-projects.vercel.app',
-    'https://bosyboss-quiz-registration-tu92diq3o-spadar-van-goghs-projects.vercel.app',
-    'https://bosyboss-quiz-registration-19sxtlhrc-spadar-van-goghs-projects.vercel.app'
+    'https://*.vercel.app'
   ],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  optionsSuccessStatus: 200
 }));
 
 // Rate limiting
