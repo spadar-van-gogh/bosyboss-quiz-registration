@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Calendar, Clock, Users, MapPin, Star, Mail, Phone, User, MessageSquare, Trophy } from 'lucide-react';
 
+// API Base URL из переменных окружения
+const API_BASE_URL = import.meta.env?.VITE_API_URL || 'http://localhost:3001';
+
 // Types
 interface Quiz {
   id: string;
@@ -118,21 +121,21 @@ export default function App() {
 
   /// Load quizzes on component mount
   useEffect(() => {
-  setIsLoading(true);
-  
-    fetch('http://localhost:3001/api/quizzes')
-    .then(response => response.json())
-    .then(data => {
-      setQuizzes(data);
-      setIsLoading(false);
-    })
-    .catch(error => {
-      console.error('Error loading quizzes:', error);
-      // Fallback на mock данные
-      setQuizzes(mockQuizzes);
-      setIsLoading(false);
-    });
-}, []);
+    setIsLoading(true);
+    
+    fetch(`${API_BASE_URL}/api/quizzes`)
+      .then(response => response.json())
+      .then(data => {
+        setQuizzes(data);
+        setIsLoading(false);
+      })
+      .catch(error => {
+        console.error('Error loading quizzes:', error);
+        // Fallback на mock данные
+        setQuizzes(mockQuizzes);
+        setIsLoading(false);
+      });
+  }, []);
 
   const validateForm = (): boolean => {
     const newErrors: TeamRegistrationFormErrors = {};
@@ -158,9 +161,9 @@ export default function App() {
     }
     
     if (!formData.captainPhone.trim()) {
-  newErrors.captainPhone = 'Телефон обязателен';
+      newErrors.captainPhone = 'Телефон обязателен';
     } else if (!/^\+?375[\d\s\-\(\)]{8,}$/.test(formData.captainPhone)) {
-  newErrors.captainPhone = 'Некорректный номер телефона (формат: +375 XX XXX-XX-XX)';
+      newErrors.captainPhone = 'Некорректный номер телефона (формат: +375 XX XXX-XX-XX)';
     }
 
     setErrors(newErrors);
@@ -194,52 +197,54 @@ export default function App() {
   };
 
   const handleSubmit = async () => {
-  if (!validateForm()) return;
+    if (!validateForm()) return;
 
-  setIsSubmitting(true);
-  
-  try {
-    // Реальный запрос к API
-    const response = await fetch('http://localhost:3001/api/registrations/team', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(formData),
-    });
-
-    const result = await response.json();
-
-    if (response.ok) {
-  setSubmitMessage(`Команда "${formData.teamName}" успешно зарегистрирована! Проверьте email для подтверждения.`);
-  setShowForm(false);
-  setFormData({
-    teamName: '',
-    teamSize: 0,
-    captainFirstName: '',
-    captainLastName: '',
-    captainEmail: '',
-    captainPhone: '',
-    experience: 'BEGINNER',
-    howHeardAbout: '',
-    notes: '',
-    quizId: ''
-  });
-  
-  fetch('http://localhost:3001/api/quizzes')
-    .then(response => response.json())
-    .then(data => setQuizzes(data))
-    .catch(error => console.error('Error reloading quizzes:', error));
+    setIsSubmitting(true);
     
-} else {
-  setSubmitMessage(result.error || 'Ошибка при регистрации');
-}
-  } catch (error) {
-    setSubmitMessage('Ошибка при регистрации. Попробуйте еще раз.');
-  } finally {
-    setIsSubmitting(false);
-  }
-};
+    try {
+      // Реальный запрос к API
+      const response = await fetch(`${API_BASE_URL}/api/registrations/team`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        setSubmitMessage(`Команда "${formData.teamName}" успешно зарегистрирована! Проверьте email для подтверждения.`);
+        setShowForm(false);
+        setFormData({
+          teamName: '',
+          teamSize: 0,
+          captainFirstName: '',
+          captainLastName: '',
+          captainEmail: '',
+          captainPhone: '',
+          experience: 'BEGINNER',
+          howHeardAbout: '',
+          notes: '',
+          quizId: ''
+        });
+        
+        // Обновляем список квизов
+        fetch(`${API_BASE_URL}/api/quizzes`)
+          .then(response => response.json())
+          .then(data => setQuizzes(data))
+          .catch(error => console.error('Error reloading quizzes:', error));
+          
+      } else {
+        setSubmitMessage(result.error || 'Ошибка при регистрации');
+      }
+    } catch (error) {
+      console.error('Registration error:', error);
+      setSubmitMessage('Ошибка при регистрации. Попробуйте еще раз.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
