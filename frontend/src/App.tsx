@@ -123,7 +123,7 @@ export default function App() {
   useEffect(() => {
     setIsLoading(true);
     
-    fetch(`${API_BASE_URL}/api/quizzes`)
+    fetch('https://bosyboss-quiz-registration-production.up.railway.app/api/quizzes')
       .then(response => response.json())
       .then(data => {
         setQuizzes(data);
@@ -203,7 +203,7 @@ export default function App() {
     
     try {
       // Реальный запрос к API
-      const response = await fetch(`${API_BASE_URL}/api/registrations/team`, {
+      const response = await fetch('https://bosyboss-quiz-registration-production.up.railway.app/api/registrations/team', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
