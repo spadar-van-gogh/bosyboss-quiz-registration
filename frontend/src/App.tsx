@@ -2,7 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { Calendar, Clock, Users, MapPin, Star, Mail, Phone, User, MessageSquare, Trophy } from 'lucide-react';
 
 // API Base URL из переменных окружения
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://bosyboss-quiz-registration-production.up.railway.app';
+// const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://bosyboss-quiz-registration-production.up.railway.app';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 
+  (import.meta.env.PROD 
+    ? 'https://bosyboss-quiz-registration-production.up.railway.app' // ваш точный Railway URL
+    : 'http://localhost:3001');
+
+console.log('Используем API_BASE_URL:', API_BASE_URL);
 
 // Types
 interface Quiz {
@@ -120,22 +126,48 @@ export default function App() {
   });
 
   /// Load quizzes on component mount
-  useEffect(() => {
-    setIsLoading(true);
+  // useEffect(() => {
+  //   setIsLoading(true);
     
-    fetch('https://bosyboss-quiz-registration-production.up.railway.app/api/quizzes')
-      .then(response => response.json())
-      .then(data => {
-        setQuizzes(data);
-        setIsLoading(false);
-      })
-      .catch(error => {
-        console.error('Error loading quizzes:', error);
-        // Fallback на mock данные
-        setQuizzes(mockQuizzes);
-        setIsLoading(false);
-      });
-  }, []);
+  //   fetch('https://bosyboss-quiz-registration-production.up.railway.app/api/quizzes')
+  //     .then(response => response.json())
+  //     .then(data => {
+  //       setQuizzes(data);
+  //       setIsLoading(false);
+  //     })
+  //     .catch(error => {
+  //       console.error('Error loading quizzes:', error);
+  //       // Fallback на mock данные
+  //       setQuizzes(mockQuizzes);
+  //       setIsLoading(false);
+  //     });
+  // }, []);
+  useEffect(() => {
+setIsLoading(true);
+
+console.log('Загружаем квизы с URL:', `${API_BASE_URL}/api/quizzes`);
+
+  fetch(`${API_BASE_URL}/api/quizzes`)
+  .then(response => {
+    console.log('Ответ загрузки квизов:', response.status);
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}`);
+    }
+    return response.json();
+  })
+  .then(data => {
+    console.log('Квизы загружены:', data);
+    setQuizzes(data);
+    setIsLoading(false);
+  })
+  .catch(error => {
+    console.error('Error loading quizzes:', error);
+    // Fallback на mock данные
+    console.log('Используем mock данные');
+    setQuizzes(mockQuizzes);
+    setIsLoading(false);
+  });
+}, [API_BASE_URL]);
 
   const validateForm = (): boolean => {
     const newErrors: TeamRegistrationFormErrors = {};
