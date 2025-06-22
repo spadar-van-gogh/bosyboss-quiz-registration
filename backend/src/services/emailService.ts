@@ -1,4 +1,7 @@
-import nodemailer from 'nodemailer';
+import { Resend } from 'resend';
+
+// Создаем экземпляр Resend только если есть API ключ
+const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
 
 interface TeamRegistrationWithQuiz {
   id: string;
@@ -20,34 +23,6 @@ interface TeamRegistrationWithQuiz {
     maxTeamSize: number;
   };
 }
-
-// Create transporter (configure based on your email provider)
-const createTransporter = () => {
-  if (process.env.NODE_ENV === 'production') {
-    // Production: Use a real email service (Resend, SendGrid, etc.)
-    return nodemailer.createTransport({
-      host: process.env.SMTP_HOST,
-      port: parseInt(process.env.SMTP_PORT || '587'),
-      secure: false,
-      auth: {
-        user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASS,
-      },
-    });
-  } else {
-    // Development: Use Ethereal Email (fake SMTP)
-    return nodemailer.createTransport({
-      host: 'smtp.ethereal.email',
-      port: 587,
-      auth: {
-        user: 'ethereal.user@ethereal.email',
-        pass: 'ethereal.pass',
-      },
-    });
-  }
-};
-
-const transporter = createTransporter();
 
 // Email templates for team registration
 const getTeamConfirmationEmailHTML = (registration: TeamRegistrationWithQuiz) => {
@@ -137,36 +112,42 @@ const getTeamConfirmationEmailHTML = (registration: TeamRegistrationWithQuiz) =>
 
 export const sendTeamConfirmationEmail = async (registration: TeamRegistrationWithQuiz) => {
   try {
+    console.log('Отправляем email через Resend...');
+    
+    if (!resend) {
+      console.error('Resend не настроен - отсутствует RESEND_API_KEY');
+      throw new Error('Email service not configured');
+    }
+
     const isWaitlist = registration.status === 'WAITLIST';
     
-    const mailOptions = {
-      from: process.env.FROM_EMAIL || 'noreply@bosyboss.by', // ← Изменено
+    const result = await resend.emails.send({
+      from: process.env.FROM_EMAIL || 'onboarding@resend.dev',
       to: registration.captainEmail,
       subject: isWaitlist 
         ? `📋 Команда "${registration.teamName}" в списке ожидания: ${registration.quiz.title}`
         : `✅ Команда "${registration.teamName}" зарегистрирована: ${registration.quiz.title}`,
       html: getTeamConfirmationEmailHTML(registration)
-};
+    });
 
-    const result = await transporter.sendMail(mailOptions);
-    
-    if (process.env.NODE_ENV === 'development') {
-      console.log('📧 Team email sent:', nodemailer.getTestMessageUrl(result));
-    }
-    
+    console.log('Email отправлен успешно:', result);
     return result;
   } catch (error) {
-    console.error('Error sending team email:', error);
+    console.error('Ошибка отправки email:', error);
     throw error;
   }
 };
 
 export const sendTeamReminderEmail = async (registration: TeamRegistrationWithQuiz) => {
   try {
+    if (!resend) {
+      throw new Error('Email service not configured');
+    }
+
     const quizDate = new Date(registration.quiz.date).toLocaleDateString('ru-RU');
     
-    const mailOptions = {
-      from: process.env.FROM_EMAIL || 'noreply@bosyboss.by', // ← Изменено
+    const result = await resend.emails.send({
+      from: process.env.FROM_EMAIL || 'onboarding@resend.dev',
       to: registration.captainEmail,
       subject: `🔔 Напоминание: турнир завтра!`,
       html: `
@@ -174,11 +155,11 @@ export const sendTeamReminderEmail = async (registration: TeamRegistrationWithQu
         <p>Напоминаем, что завтра ${quizDate} в ${registration.quiz.startTime} состоится турнир "${registration.quiz.title}".</p>
         <p>Не забудьте привести всю команду "${registration.teamName}" (${registration.teamSize} человек)!</p>
         <p>До встречи!</p>
-        <p><strong>С уважением,<br>Команда БосыBoss</strong></p> <!-- ← Добавлено -->
+        <p><strong>С уважением,<br>Команда БосыBoss</strong></p>
       `
-};
+    });
 
-    return await transporter.sendMail(mailOptions);
+    return result;
   } catch (error) {
     console.error('Error sending team reminder:', error);
     throw error;
