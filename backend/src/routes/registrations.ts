@@ -80,11 +80,18 @@ router.post('/team', async (req, res) => {
     });
 
     // Send confirmation email
-    try {
-      await sendTeamConfirmationEmail(registration);
-    } catch (emailError) {
-      console.error('Failed to send confirmation email:', emailError);
-      // Don't fail the registration if email fails
+    // try {
+    //   await sendTeamConfirmationEmail(registration);
+    // } catch (emailError) {
+    //   console.error('Failed to send confirmation email:', emailError);
+    // }
+      try {
+        console.log('Email отправка временно отключена');
+        console.log('Регистрация для:', registration.captainEmail);
+          // await sendTeamConfirmationEmail(registration);
+      } catch (emailError) {
+        console.error('Failed to send confirmation email:', emailError);
+          // Don't fail the registration if email fails
     }
 
     // Update quiz status if it's now full
@@ -193,11 +200,18 @@ router.put('/team/:id/cancel', async (req, res) => {
         });
         
         // Send promotion email
+        // try {
+        //   await sendTeamConfirmationEmail(promotedRegistration);
+        // } catch (emailError) {
+        //   console.error('Failed to send promotion email:', emailError);
+        // }
         try {
-          await sendTeamConfirmationEmail(promotedRegistration);
+          console.log('Promotion email временно отключен');
+            // await sendTeamConfirmationEmail(promotedRegistration);
         } catch (emailError) {
           console.error('Failed to send promotion email:', emailError);
         }
+
       } else {
         // No one on waitlist, change quiz status back to active
         await prisma.quiz.update({
