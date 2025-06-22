@@ -112,6 +112,16 @@ const getTeamConfirmationEmailHTML = (registration: TeamRegistrationWithQuiz) =>
 
 export const sendTeamConfirmationEmail = async (registration: TeamRegistrationWithQuiz) => {
   try {
+
+    // === НОВОЕ ЛОГИРОВАНИЕ ===
+    console.log('🔧 === DEBUG EMAIL SERVICE ===');
+    console.log('🔑 RESEND_API_KEY:', process.env.RESEND_API_KEY ? `настроен (длина: ${process.env.RESEND_API_KEY.length})` : '❌ ОТСУТСТВУЕТ');
+    console.log('📧 FROM_EMAIL:', process.env.FROM_EMAIL);
+    console.log('📬 TO EMAIL:', registration.captainEmail);
+    console.log('🤖 resend объект:', resend ? 'создан' : '❌ НЕ СОЗДАН');
+    console.log('=====================================');
+    // === КОНЕЦ НОВОГО ЛОГИРОВАНИЯ ===
+    
     console.log('Отправляем email через Resend...');
     
     if (!resend) {
