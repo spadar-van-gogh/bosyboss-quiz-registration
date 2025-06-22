@@ -132,7 +132,7 @@ export const sendTeamConfirmationEmail = async (registration: TeamRegistrationWi
     const isWaitlist = registration.status === 'WAITLIST';
     
     const result = await resend.emails.send({
-      from: process.env.FROM_EMAIL || 'onboarding@resend.dev',
+      from: process.env.FROM_EMAIL || 'bosyboss@proton.me',
       to: registration.captainEmail,
       subject: isWaitlist 
         ? `📋 Команда "${registration.teamName}" в списке ожидания: ${registration.quiz.title}`
@@ -157,7 +157,7 @@ export const sendTeamReminderEmail = async (registration: TeamRegistrationWithQu
     const quizDate = new Date(registration.quiz.date).toLocaleDateString('ru-RU');
     
     const result = await resend.emails.send({
-      from: process.env.FROM_EMAIL || 'onboarding@resend.dev',
+      from: process.env.FROM_EMAIL || 'bosyboss@proton.me',
       to: registration.captainEmail,
       subject: `🔔 Напоминание: турнир завтра!`,
       html: `
