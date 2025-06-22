@@ -18,25 +18,62 @@ const prisma = new PrismaClient();
 
 // Security middleware
 app.use(helmet());
+// app.use(cors({
+//   origin: function (origin, callback) {
+//     if (!origin) return callback(null, true);
+    
+//     const allowedOrigins = [
+//       'http://localhost:3000',
+//       'http://127.0.0.1:3000',
+//       'https://bosyboss-quiz-registration.vercel.app'
+//     ];
+    
+//     if (allowedOrigins.includes(origin)) {
+//       return callback(null, true);
+//     }
+    
+//     callback(new Error('Not allowed by CORS'));
+//   },
+//   credentials: true,
+//   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+//   allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
+//   optionsSuccessStatus: 200
+// }));
 app.use(cors({
   origin: function (origin, callback) {
+    console.log('CORS request from origin:', origin);
+    
+    // Разрешаем запросы без origin (например, мобильные приложения, Postman)
     if (!origin) return callback(null, true);
     
     const allowedOrigins = [
       'http://localhost:3000',
       'http://127.0.0.1:3000',
-      'https://bosyboss-quiz-registration.vercel.app'
-    ];
+      'http://localhost:5173',
+      'http://127.0.0.1:5173',
+      'https://bosyboss-quiz-registration.vercel.app', // ваш точный Vercel URL
+      'https://bosyboss-quiz-registration-production.up.railway.app', // ваш Railway URL
+      process.env.FRONTEND_URL, // из переменных окружения
+    ].filter(Boolean); // убираем undefined значения
+    
+    console.log('Allowed origins:', allowedOrigins);
     
     if (allowedOrigins.includes(origin)) {
-      return callback(null, true);
+      console.log('CORS: Origin allowed');
+      callback(null, true);
+    } else {
+      console.log('CORS: Origin blocked');
+      // В development разрешаем все, в production блокируем
+      if (process.env.NODE_ENV === 'development') {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
     }
-    
-    callback(new Error('Not allowed by CORS'));
   },
   credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'x-requested-with'],
   optionsSuccessStatus: 200
 }));
 
@@ -49,6 +86,17 @@ const limiter = rateLimit({
   message: 'Too many requests from this IP, please try again later.'
 });
 app.use(limiter);
+
+// Временное решение для отладки CORS
+app.use((req, res, next) => {
+  if (process.env.DEBUG_CORS) {
+    console.log('DEBUG_CORS активен, разрешаем все origins');
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
+    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  }
+  next();
+});
 
 // Body parsing middleware
 app.use(express.json({ limit: '10mb' }));
